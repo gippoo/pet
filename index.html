@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gary Ip - Pet</title>
+<link rel="shortcut icon" href="https://github.com/gippoo/gippoo.github.io/raw/master/favicon.ico" type="image/x-icon">
+<link rel="icon" href="https://github.com/gippoo/gippoo.github.io/raw/master/favicon.ico" type="image/x-icon">
+<script src="https://cdn.jsdelivr.net/npm/p5@1.0.0/lib/p5.js""></script>
+</head>
+<body>
+<script>
+let glevel = 300;
+var pet = new pet();
+var low_lim = 1000;
+var up_lim = 300;
+var gravity = 1;
+var jumpTime = 0;
+var bgValue = 240;
+var bgDay = true;
+var foods = [];
+var gCol=235;
+
+
+
+function ground(ground_level) {
+  line(0,ground_level,400,ground_level);
+}
+
+function pet() {
+  this.x = 200;
+  this.eyex = this.x+15;
+  this.y = glevel-20;
+  this.sizex = 20;
+  this.sizey = 20;
+  this.speed = 1;
+  this.jumpp = false;
+  this.jumpSpeed = 5;
+  this.wandertime = 0;
+  this.colR = 255;
+  this.colG = 255;
+  this.colB = 255;
+  this.hunger = 100;
+  
+  this.show = function() {
+    fill(this.colR,this.colG,this.colB);
+    rect(this.x,this.y,this.sizex,this.sizey);
+    fill(51);
+    circle(this.eyex,this.y+5,2);
+  }
+  
+  this.hungry = function() {
+    this.hunger -= 0.1;
+    if (this.hunger < 40) {
+      fill(50);
+      text('feed me!', this.x-10, this.y-10);
+    }
+  }
+  
+  this.wander = function() {
+    if (this.wandertime == 1) {
+      low_lim = 150 + random(-10, 10);
+      up_lim = 170 + random(-10, 10);
+      if (random(1) > 0.5) {
+        this.speed *= -1;
+        this.eyex = this.x+10+this.speed*5;
+      }
+      if (random(1) > 0.9) {
+        this.jumpp = true;
+      }
+    }
+    
+    if (this.jumpp == true) {
+      this.y += gravity*jumpTime-this.jumpSpeed;
+      jumpTime += 0.4;
+    }
+    if (this.y > glevel-20) {
+      this.jumpp = false;
+      this. y = glevel-20;
+      jumpTime = 0;
+    }
+    
+    if (this.wandertime > low_lim && this.wandertime < up_lim) {
+      this.x += this.speed;
+      this.eyex += this.speed;
+      if (this.x+20 > 400) {
+        this.x = 380;
+        this.eyex = this.x+10+this.speed*5;
+      } else if (this.x < 0) {
+        this.x = 0;
+        this.eyex = this.x+10+this.speed*5;
+      }
+    }
+  
+    if (this.wandertime == 180) {
+      this.wandertime = 0;
+    }
+  this.wandertime += 1;
+  }
+}
+
+
+function food(x,y) {
+  this.x = x;
+  this.y = y;
+  this.time = 0;
+  
+  this.show = function() {
+    fill(201, 169, 129);
+    circle(this.x, this.y, 5);
+    fill(255);
+  }
+  
+  this.fall = function() {
+    this.y -= gravity*this.time;
+    this.time -= 1;
+    
+    if (this.y > glevel - 3) {
+      this.y = glevel - 3;
+    }
+  }
+  
+  this.eaten = function() {
+    if ((this.x > pet.x) && (this.x < pet.x+20) && this.y == glevel -3) {
+      foods = [];
+      pet.colR = int(random(0,255));
+      pet.colG = int(random(0,255));
+      pet.colB = int(random(0,255));
+      pet.hunger += 10;
+    }
+  }
+}
+
+function mousePressed() {
+  foods[0] = new food(mouseX, mouseY)
+}
+
+
+function setup() {
+  createCanvas(400, 400);
+}
+
+function draw() {
+  background(bgValue);
+  if (bgDay) {
+    bgValue -= 0.05;
+    gCol -= 0.02;
+    if (bgValue < 80) {
+      bgDay = false;
+    }
+  } else {
+      bgValue += 0.05;
+      gCol += 0.02;
+    
+      if (bgValue > 240) {
+        bgDay = true;
+      }
+    }
+  ground(glevel);
+  fill(139, gCol, 136);
+  rect(-5,glevel,409,405-glevel);
+  pet.show();
+  for (let bit of foods) {
+    bit.show();
+    bit.fall();
+    bit.eaten();
+  }
+  pet.wander();
+  pet.hungry();
+}
+</script>
+</body>
+</html> 
