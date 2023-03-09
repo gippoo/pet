@@ -136,7 +136,8 @@ function mousePressed() {
 
 
 function setup() {
-  createCanvas(400, 400);
+  var canv = createCanvas(400, 400);
+  canv.parent('gamearea');
 }
 
 function draw() {
@@ -168,5 +169,10 @@ function draw() {
   pet.hungry();
 }
 </script>
+                                                              
+<div class="content">
+	<center id='gamearea'></center>
+</div>
+            
 </body>
 </html> 
