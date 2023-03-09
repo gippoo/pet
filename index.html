@@ -19,6 +19,8 @@ var bgValue = 240;
 var bgDay = true;
 var foods = [];
 var gCol=235;
+var eggs = [];
+var money = 0;
 
 
 
@@ -49,8 +51,11 @@ function pet() {
   }
   
   this.hungry = function() {
-    this.hunger -= 0.1;
-    if (this.hunger < 40) {
+    this.hunger -= 0.05;
+    if (this.hunger < 10) {
+      fill(50);
+      text('im dying :(', this.x-15, this.y-10);
+    } else if (this.hunger < 40) {
       fill(50);
       text('feed me!', this.x-10, this.y-10);
     }
@@ -96,6 +101,15 @@ function pet() {
     }
   this.wandertime += 1;
   }
+  
+  this.layEgg = function() {
+    if (this.wandertime % 10 == 0) {
+      if (random(1) > 0.99) {
+        eggs.push(new egg(this.x+10-this.speed*10, glevel-4))
+      }
+    }
+  }
+  
 }
 
 
@@ -130,14 +144,35 @@ function food(x,y) {
   }
 }
 
+function egg(x,y) { 
+  this.removeFlag = false;
+  
+  this.show = function() {
+    fill(255);
+    ellipse(x, y, 4, 6);
+  }
+  
+  this.remove = function() {
+    if (mouseX < x+2 && mouseX > x-2 && mouseY > y-3 && mouseY < y+3) {
+      this.removeFlag = true;
+      money += 5;
+    }
+  }
+}
+
+
 function mousePressed() {
-  foods[0] = new food(mouseX, mouseY)
+  if (money > 0) {
+    foods[0] = new food(mouseX, mouseY);
+    money -= 1;
+  }
+  
 }
 
 
 function setup() {
   var canv = createCanvas(400, 400);
-  canv.parent('gamearea');
+  canv.parent('gamearea')
 }
 
 function draw() {
@@ -159,14 +194,26 @@ function draw() {
   ground(glevel);
   fill(139, gCol, 136);
   rect(-5,glevel,409,405-glevel);
+  fill(0);
+  text('Money: '+money.toString(),30,30)
   pet.show();
+  pet.wander();
+  pet.hungry();
+  pet.layEgg();
+  for (let egg of eggs) {
+    egg.show();
+    egg.remove();
+  }
+  for (let i = 0; i < eggs.length; i++) {
+      if (eggs[i].removeFlag) {
+         eggs.splice(i,1); 
+      }
+  }
   for (let bit of foods) {
     bit.show();
     bit.fall();
     bit.eaten();
   }
-  pet.wander();
-  pet.hungry();
 }
 </script>
                                                               
